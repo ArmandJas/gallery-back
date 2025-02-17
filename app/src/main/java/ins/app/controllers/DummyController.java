@@ -1,14 +1,15 @@
 package ins.app.controllers;
 
+import java.time.LocalDateTime;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.sql.Timestamp;
 
 @RestController
 public class DummyController {
     @GetMapping("/dummy")
-    public Timestamp GetTime() {
-        return new Timestamp(System.currentTimeMillis());
+    public String[] GetTime() {
+        String time = LocalDateTime.now().toString();
+        return new String[] {time};
     }
 }

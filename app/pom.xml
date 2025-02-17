@@ -13,10 +13,6 @@
     <description>app</description>
     <packaging>war</packaging>
 
-    <properties>
-        <java.version>21</java.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>ins</groupId>

@@ -12,10 +12,6 @@
     <name>bl</name>
     <description>bl</description>
 
-    <properties>
-        <java.version>21</java.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>ins</groupId>
