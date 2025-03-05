@@ -6,9 +6,8 @@ public class PhotoEncoder {
     public static String encode(byte[] input) {
         String result = Base64.getMimeEncoder().encodeToString(input);
 
-        // Restore symbols lost in decoding and remove whitespace/padding:
-        result = result.replace("data", "data:");
-        result = result.replace("base64", ";base64,");
+        // Add base64 annotation and remove padding
+        result = "data:image;base64," + result;
         result = result.replaceAll("(\\s|=+)", "");
         return result;
     }

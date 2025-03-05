@@ -1,4 +1,4 @@
-package ins.bl.services;
+package ins.app.services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

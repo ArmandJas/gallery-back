@@ -1,6 +1,6 @@
 package ins.bl.utilities;
 
-public class Constants {
+public class ValidationConstants {
     public static final String LETTERS_NUMBERS_SPACES_REGEX =
             "([a-zA-Z0-9]+ *)+";
     public static final int MAX_PHOTO_NAME_LENGTH = 50;

@@ -1,17 +1,16 @@
-package ins.bl.services;
+package ins.app.services;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import ins.bl.dtos.PhotoDto;
-import ins.bl.dtos.PhotoUploadDto;
-import ins.bl.mappers.PhotoMapper;
+import ins.app.dtos.PhotoDto;
+import ins.app.dtos.PhotoUploadDto;
+import ins.app.mappers.PhotoMapper;
 import ins.bl.repositories.PhotoRepository;
 import ins.model.entities.Photo;
 
-//transactional?
 @Service
 @Transactional
 public class PhotoService {
@@ -24,18 +23,19 @@ public class PhotoService {
     }
 
     public PhotoDto getPhoto(long id) {
-        PhotoDto result = PhotoDto.to(photoRepository.findPhotoById(id));
-        if (result != null) {
-            return result;
+        PhotoDto photoDto = PhotoDto.to(photoRepository.findPhotoById(id));
+        if (photoDto == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "entity not found"
+            );
         }
-        throw new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "entity not found"
-        );
+
+        return PhotoDto.to(photoRepository.findPhotoById(id));
     }
 
     public PhotoDto savePhoto(PhotoUploadDto photoUploadDto) {
-        Photo newPhoto = photoRepository.save(
-                photoMapper.toPhoto(photoUploadDto));
-        return PhotoDto.to(newPhoto);
+        Photo entity = photoMapper.toPhoto(photoUploadDto);
+        Photo savedPhoto = photoRepository.saveAndFlush(entity);
+        return PhotoDto.to(savedPhoto);
     }
 }
