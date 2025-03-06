@@ -6,21 +6,18 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import ins.app.dtos.PhotoDto;
-import ins.app.dtos.PhotoUploadDto;
+import ins.app.dtos.PhotoUploadRequest;
 import ins.app.mappers.PhotoMapper;
 import ins.bl.repositories.PhotoRepository;
 import ins.model.entities.Photo;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class PhotoService {
     private final PhotoRepository photoRepository;
     private final PhotoMapper photoMapper;
-
-    public PhotoService(PhotoRepository photoRepository, PhotoMapper photoMapper) {
-        this.photoRepository = photoRepository;
-        this.photoMapper = photoMapper;
-    }
 
     public PhotoDto getPhoto(long id) {
         PhotoDto photoDto = PhotoDto.to(photoRepository.findPhotoById(id));
@@ -33,8 +30,8 @@ public class PhotoService {
         return PhotoDto.to(photoRepository.findPhotoById(id));
     }
 
-    public PhotoDto savePhoto(PhotoUploadDto photoUploadDto) {
-        Photo entity = photoMapper.toPhoto(photoUploadDto);
+    public PhotoDto savePhoto(PhotoUploadRequest photoUploadRequest) {
+        Photo entity = photoMapper.toPhoto(photoUploadRequest);
         Photo savedPhoto = photoRepository.saveAndFlush(entity);
         return PhotoDto.to(savedPhoto);
     }

@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
-import ins.app.dtos.PhotoUploadDto;
+import ins.app.dtos.PhotoUploadRequest;
 import ins.app.services.TagService;
 import ins.bl.utilities.TimeUtility;
 import ins.model.entities.Photo;
@@ -19,24 +19,26 @@ import lombok.RequiredArgsConstructor;
 public class PhotoMapper {
     private final TagService tagService;
 
-    public Photo toPhoto(PhotoUploadDto photoUploadDto) {
-        Photo photo = new Photo();
-        photo.setName(photoUploadDto.getName().trim());
-
-        if (photoUploadDto.getDescription() != null) {
-            photo.setDescription(photoUploadDto.getDescription().trim());
-        }
-
-        photo.setUploadTimestamp(TimeUtility.createTimestamp());
-
+    public Photo toPhoto(PhotoUploadRequest photoUploadRequest) {
+        byte[] imageData;
         try {
-            photo.setImage(photoUploadDto.getImage().getBytes());
+            imageData = photoUploadRequest.getImage().getBytes();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
+        Photo photo = new Photo();
+        photo.setImage(imageData);
+        photo.setName(photoUploadRequest.getName().trim());
+
+        if (photoUploadRequest.getDescription() != null) {
+            photo.setDescription(photoUploadRequest.getDescription().trim());
+        }
+
+        photo.setUploadTimestamp(TimeUtility.createTimestamp());
+
         // Sets tags with just names, no ids
-        photo.setTags(tagSetBuilder(photoUploadDto.getTags()));
+        photo.setTags(tagSetBuilder(photoUploadRequest.getTags()));
 
         Set<Tag> newTags = new HashSet<>();
         // Gets full tags from database by name
@@ -54,7 +56,7 @@ public class PhotoMapper {
 
     // Creates a set of tags from a string list of tag names
     private static Set<Tag> tagSetBuilder(List<String> input) {
-        Set<Tag> tagSet = new HashSet<Tag>();
+        Set<Tag> tagSet = new HashSet<>();
         for (String tag : input) {
             Tag newTag = new Tag(tag.trim());
             tagSet.add(newTag);

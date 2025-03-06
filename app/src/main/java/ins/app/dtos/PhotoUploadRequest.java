@@ -12,7 +12,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class PhotoUploadDto {
+public class PhotoUploadRequest {
     @NotBlank
     @Size(max = ValidationConstants.MAX_PHOTO_NAME_LENGTH)
     @Pattern(regexp = ValidationConstants.LETTERS_NUMBERS_SPACES_REGEX)

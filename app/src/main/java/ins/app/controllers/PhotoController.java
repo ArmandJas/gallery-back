@@ -1,7 +1,5 @@
 package ins.app.controllers;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -11,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ins.app.dtos.PhotoDto;
-import ins.app.dtos.PhotoUploadDto;
+import ins.app.dtos.PhotoUploadRequest;
 import ins.app.services.PhotoService;
 
 @RestController
@@ -24,13 +22,12 @@ public class PhotoController {
     }
 
     @GetMapping("/{id}")
-    public PhotoDto getPhoto(@PathVariable(required = true) long id) {
+    public PhotoDto getPhoto(@PathVariable long id) {
         return photoService.getPhoto(id);
     }
 
     @PostMapping(value = "/post")
-    public ResponseEntity<PhotoDto> addPhoto(@ModelAttribute @Validated PhotoUploadDto photo) {
-        return ResponseEntity.ok()
-                .body(photoService.savePhoto(photo));
+    public PhotoDto addPhoto(@ModelAttribute @Validated PhotoUploadRequest photo) {
+        return photoService.savePhoto(photo);
     }
 }
