@@ -1,15 +1,14 @@
 package ins.app.dtos;
 
-import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
+import java.util.Set;
 
 import ins.bl.utilities.TimeUtility;
 import ins.model.entities.Photo;
 import ins.model.entities.Tag;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Singular;
 
 @Data
 @Builder
@@ -19,8 +18,6 @@ public class PhotoDto {
     private String imageBase64;
     private String description;
     private String uploadDateTime;
-
-    @Singular
     private List<String> tags;
 
     public static PhotoDto to(Photo photo) {
@@ -28,19 +25,23 @@ public class PhotoDto {
             return null;
         }
 
-        LocalDateTime timestamp = photo.getUploadTimestamp();
-
         return PhotoDto.builder()
                 .id(photo.getId())
                 .name(photo.getName())
-                .imageBase64(Base64.getMimeEncoder()
-                        .encodeToString(photo.getImage()))
+                .imageBase64(encodeImage(photo.getImage()))
                 .description(photo.getDescription())
-                .uploadDateTime(TimeUtility.formatTimestamp(timestamp))
-                .tags(photo.getTags()
-                        .stream()
-                        .map(Tag::getName)
-                        .toList())
+                .uploadDateTime(TimeUtility.formatTimestamp(photo.getUploadTimestamp()))
+                .tags(buildStringTagList(photo.getTags()))
                 .build();
+    }
+
+    private static String encodeImage(byte[] image) {
+        return Base64.getMimeEncoder().encodeToString(image);
+    }
+
+    private static List<String> buildStringTagList(Set<Tag> tags) {
+        return tags.stream()
+                .map(Tag::getName)
+                .toList();
     }
 }

@@ -37,11 +37,10 @@ public class PhotoMapper {
 
         photo.setUploadTimestamp(TimeUtility.createTimestamp());
 
-        // Sets tags with just names, no ids
-        photo.setTags(tagSetBuilder(photoUploadRequest.getTags()));
+        photo.setTags(buildTagSet(photoUploadRequest.getTags()));
 
         Set<Tag> newTags = new HashSet<>();
-        // Gets full tags from database by name
+
         // TODO: MR3: FIX MULTIPLE CALLS TO DB, REFACTOR
         for (Tag tag : photo.getTags()) {
             Tag found = tagService.getTagByName(tag.getName());
@@ -54,8 +53,7 @@ public class PhotoMapper {
         return photo;
     }
 
-    // Creates a set of tags from a string list of tag names
-    private static Set<Tag> tagSetBuilder(List<String> input) {
+    private static Set<Tag> buildTagSet(List<String> input) {
         Set<Tag> tagSet = new HashSet<>();
         for (String tag : input) {
             Tag newTag = new Tag(tag.trim());

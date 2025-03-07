@@ -20,14 +20,14 @@ public class PhotoService {
     private final PhotoMapper photoMapper;
 
     public PhotoDto getPhoto(long id) {
-        PhotoDto photoDto = PhotoDto.to(photoRepository.findPhotoById(id));
-        if (photoDto == null) {
+        Photo foundPhoto = photoRepository.findPhotoById(id);
+        if (foundPhoto == null) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "entity not found"
             );
         }
 
-        return PhotoDto.to(photoRepository.findPhotoById(id));
+        return PhotoDto.to(foundPhoto);
     }
 
     public PhotoDto savePhoto(PhotoUploadRequest photoUploadRequest) {
