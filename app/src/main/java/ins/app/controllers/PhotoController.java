@@ -1,5 +1,7 @@
 package ins.app.controllers;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,6 +27,11 @@ public class PhotoController {
     @GetMapping("/{id}")
     public PhotoDto GetPhoto(@PathVariable(required = true) long id) {
         return photoService.getPhoto(id);
+    }
+
+    @GetMapping("/page/{pageNumber}")
+    public List<PhotoDto> GetPhotoPage(@PathVariable(required = true) int pageNumber) {
+        return photoService.getPhotoPage(pageNumber);
     }
 
     @PostMapping("/post")
