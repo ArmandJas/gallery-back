@@ -1,4 +1,4 @@
-package ins.bl.services;
+package ins.app.services;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -11,32 +11,29 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import ins.bl.dtos.PhotoDto;
-import ins.bl.dtos.PhotoUploadDto;
-import ins.bl.mappers.PhotoMapper;
+import ins.app.dtos.PhotoDto;
+import ins.app.dtos.PhotoUploadRequest;
+import ins.app.mappers.PhotoMapper;
 import ins.bl.repositories.PhotoRepository;
 import ins.model.entities.Photo;
+import lombok.RequiredArgsConstructor;
 
-//transactional?
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class PhotoService {
     private final PhotoRepository photoRepository;
     private final PhotoMapper photoMapper;
 
-    public PhotoService(PhotoRepository photoRepository, PhotoMapper photoMapper) {
-        this.photoRepository = photoRepository;
-        this.photoMapper = photoMapper;
-    }
-
     public PhotoDto getPhoto(long id) {
-        PhotoDto result = PhotoDto.to(photoRepository.findPhotoById(id));
-        if (result != null) {
-            return result;
+        Photo foundPhoto = photoRepository.findPhotoById(id);
+        if (foundPhoto == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "entity not found"
+            );
         }
-        throw new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "entity not found"
-        );
+
+        return PhotoDto.to(foundPhoto);
     }
 
     public List<PhotoDto> getPhotoPage(int pageNumber) {
@@ -49,9 +46,9 @@ public class PhotoService {
         return result;
     }
 
-    public PhotoDto savePhoto(PhotoUploadDto photoUploadDto) {
-        Photo newPhoto = photoRepository.save(
-                photoMapper.toPhoto(photoUploadDto));
-        return PhotoDto.to(newPhoto);
+    public PhotoDto savePhoto(PhotoUploadRequest photoUploadRequest) {
+        Photo entity = photoMapper.toPhoto(photoUploadRequest);
+        Photo savedPhoto = photoRepository.saveAndFlush(entity);
+        return PhotoDto.to(savedPhoto);
     }
 }

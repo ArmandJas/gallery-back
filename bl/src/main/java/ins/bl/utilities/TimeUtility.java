@@ -1,15 +1,16 @@
 package ins.bl.utilities;
 
-import java.sql.Timestamp;
-import java.text.DateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class TimeUtility {
-    public static Timestamp createTimestamp() {
-        return new Timestamp(System.currentTimeMillis());
+    private static final DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    public static LocalDateTime createTimestamp() {
+        return LocalDateTime.now();
     }
 
-    public static String formatTimestamp(Timestamp timestamp) {
-        DateFormat df = DateFormat.getDateTimeInstance();
+    public static String formatTimestamp(LocalDateTime timestamp) {
         return df.format(timestamp);
     }
 }

@@ -1,6 +1,6 @@
 package ins.model.entities;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,61 +26,25 @@ public class Photo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Timestamp uploadTimestamp;
+    private LocalDateTime uploadTimestamp;
     private String name;
     private String description;
     private byte[] image;
 
     @ManyToMany(
             cascade = {
-                    CascadeType.PERSIST,
-                    CascadeType.MERGE
+                    CascadeType.PERSIST
             })
     @JoinTable(name = "photo_tag",
             joinColumns = @JoinColumn(name = "photo_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id"),
             indexes = {
-                    @Index(name = "idx_photo_id", columnList = "photo_id"),
-                    @Index(name = "idx_tag_id", columnList = "tag_id")
+                    @Index(name = "idx_relation_photo_id", columnList = "photo_id"),
+                    @Index(name = "idx_relation_tag_id", columnList = "tag_id")
             }
     )
     private Set<Tag> tags = new HashSet<>();
 
-    public Photo(String name, byte[] image) {
-        this.name = name;
-        this.image = image;
-    }
-
     public Photo() {
-    }
-
-    public void addTag(Tag tag) {
-        tags.add(tag);
-        tag.getPhotos().add(this);
-    }
-
-    public void removeTag(Tag tag) {
-        tags.remove(tag);
-        tag.getPhotos().remove(this);
-    }
-
-    private static Timestamp createTimestamp() {
-        return new Timestamp(System.currentTimeMillis());
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Photo)) {
-            return false;
-        }
-        return id != null && id.equals(((Photo) o).getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
     }
 }
