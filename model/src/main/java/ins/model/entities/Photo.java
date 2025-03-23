@@ -30,6 +30,7 @@ public class Photo {
     private String name;
     private String description;
     private byte[] image;
+    private byte[] thumbnailImage;
 
     @ManyToMany(
             cascade = {

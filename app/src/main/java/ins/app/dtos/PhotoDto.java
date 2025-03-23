@@ -1,9 +1,9 @@
 package ins.app.dtos;
 
-import java.util.Base64;
 import java.util.List;
 import java.util.Set;
 
+import ins.app.utilities.Base64Encoder;
 import ins.bl.utilities.TimeUtility;
 import ins.model.entities.Photo;
 import ins.model.entities.Tag;
@@ -28,15 +28,11 @@ public class PhotoDto {
         return PhotoDto.builder()
                 .id(photo.getId())
                 .name(photo.getName())
-                .imageBase64(encodeImage(photo.getImage()))
+                .imageBase64(Base64Encoder.encodeImage(photo.getImage()))
                 .description(photo.getDescription())
                 .uploadDateTime(TimeUtility.formatTimestamp(photo.getUploadTimestamp()))
                 .tags(buildStringTagList(photo.getTags()))
                 .build();
-    }
-
-    private static String encodeImage(byte[] image) {
-        return Base64.getMimeEncoder().encodeToString(image);
     }
 
     private static List<String> buildStringTagList(Set<Tag> tags) {

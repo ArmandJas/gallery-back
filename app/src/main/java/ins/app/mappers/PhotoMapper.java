@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import ins.app.dtos.PhotoUploadRequest;
 import ins.app.services.TagService;
+import ins.app.utilities.ThumbnailCreator;
 import ins.bl.utilities.TimeUtility;
 import ins.model.entities.Photo;
 import ins.model.entities.Tag;
@@ -27,8 +28,16 @@ public class PhotoMapper {
             throw new RuntimeException(e);
         }
 
+        byte[] thumbnailData;
+        try {
+            thumbnailData = ThumbnailCreator.createThumbnailFrom(imageData);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         Photo photo = new Photo();
         photo.setImage(imageData);
+        photo.setThumbnailImage(thumbnailData);
         photo.setName(photoUploadRequest.getName().trim());
 
         if (photoUploadRequest.getDescription() != null) {
@@ -37,28 +46,19 @@ public class PhotoMapper {
 
         photo.setUploadTimestamp(TimeUtility.createTimestamp());
 
-        photo.setTags(buildTagSet(photoUploadRequest.getTags()));
+        List<String> tagList = photoUploadRequest.getTags();
+        Set<String> tagsToCreate = new HashSet<>(tagList);
+        Set<Tag> existingTags = tagService.getTagsByNameList(tagList);
 
-        Set<Tag> newTags = new HashSet<>();
-
-        // TODO: MR3: FIX MULTIPLE CALLS TO DB, REFACTOR
-        for (Tag tag : photo.getTags()) {
-            Tag found = tagService.getTagByName(tag.getName());
-            if (found == null) {
-                found = new Tag(tag.getName());
+        existingTags.forEach(tag -> {
+            if (tagList.contains(tag.getName())) {
+                tagsToCreate.remove(tag.getName());
             }
-            newTags.add(found);
-        }
-        photo.setTags(newTags);
-        return photo;
-    }
+        });
 
-    private static Set<Tag> buildTagSet(List<String> input) {
-        Set<Tag> tagSet = new HashSet<>();
-        for (String tag : input) {
-            Tag newTag = new Tag(tag.trim());
-            tagSet.add(newTag);
-        }
-        return tagSet;
+        tagsToCreate.forEach(tag -> existingTags.add(new Tag(tag)));
+
+        photo.setTags(existingTags);
+        return photo;
     }
 }
