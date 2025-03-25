@@ -29,10 +29,9 @@ public class PhotoController {
         return photoService.getPhoto(id);
     }
 
-    @PostMapping("/page/{pageNumber}")
-    public PhotoPageResponse getPhotoPage(@RequestBody PhotoPageRequest photoPageRequest,
-            @PathVariable int pageNumber) {
-        return photoService.getPhotoPage(photoPageRequest, pageNumber);
+    @PostMapping("/search")
+    public PhotoPageResponse findPhotoPage(@RequestBody PhotoPageRequest photoPageRequest) {
+        return photoService.findPhotoPage(photoPageRequest);
     }
 
     @PostMapping(value = "/post")

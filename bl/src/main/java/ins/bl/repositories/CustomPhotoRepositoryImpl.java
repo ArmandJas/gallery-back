@@ -12,11 +12,11 @@ import org.springframework.stereotype.Repository;
 import ins.model.entities.Photo;
 import ins.model.entities.Photo_;
 import ins.model.models.PhotoPreview;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
@@ -31,9 +31,6 @@ public class CustomPhotoRepositoryImpl implements CustomPhotoRepository {
         CriteriaQuery<Tuple> query = builder.createTupleQuery();
         Root<Photo> root = query.from(Photo.class);
 
-        query.multiselect(root.get(Photo_.id), root.get(Photo_.name), root.get(Photo_.thumbnailImage))
-                .orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
-
         if (spec != null) {
             Predicate predicate = spec.toPredicate(root, query, builder);
 
@@ -42,20 +39,36 @@ public class CustomPhotoRepositoryImpl implements CustomPhotoRepository {
             }
         }
 
+        Long total = getCount(builder);
+
+        Path<Long> idPath = root.get(Photo_.id);
+        Path<String> namePath = root.get(Photo_.name);
+        Path<byte[]> imagePath = root.get(Photo_.image);
+
+        query.multiselect(idPath, namePath, imagePath)
+                .orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
+
         List<Tuple> resultTupleList = em.createQuery(query)
                 .setFirstResult((int) pageable.getOffset())
                 .setMaxResults(pageable.getPageSize())
                 .getResultList();
 
-        CriteriaQuery<Long> countQuery = builder.createQuery(Long.class);
-        Root<Photo> countRoot = countQuery.from(Photo.class);
-        countQuery.select(builder.count(countRoot));
-        Long total = em.createQuery(countQuery).getSingleResult();
-
         List<PhotoPreview> resultList = resultTupleList.stream()
-                .map(PhotoPreview::to)
+                .map(tuple -> PhotoPreview.builder()
+                        .id(tuple.get(idPath))
+                        .name(tuple.get(namePath))
+                        .thumbnailImage(tuple.get(imagePath))
+                        .build())
                 .toList();
 
         return new PageImpl<>(resultList, pageable, total);
+    }
+
+    private Long getCount(CriteriaBuilder builder) {
+        CriteriaQuery<Long> countQuery = builder.createQuery(Long.class);
+        Root<Photo> countRoot = countQuery.from(Photo.class);
+        countQuery.select(builder.count(countRoot));
+
+        return em.createQuery(countQuery).getSingleResult();
     }
 }

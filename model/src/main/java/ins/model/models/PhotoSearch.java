@@ -1,14 +1,14 @@
-package ins.app.dtos;
+package ins.model.models;
 
 import java.time.LocalDate;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
-public class PhotoPageRequest {
+@Builder
+public class PhotoSearch {
     private long id;
-    private int pageNumber;
-    private int pageSize;
     private String name;
     private String description;
     private LocalDate uploadDateStart;

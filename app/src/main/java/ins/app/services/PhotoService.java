@@ -1,8 +1,5 @@
 package ins.app.services;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
-
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -15,7 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ins.app.dtos.PhotoDto;
 import ins.app.dtos.PhotoPageRequest;
 import ins.app.dtos.PhotoPageResponse;
-import ins.app.dtos.PhotoPreviewResponse;
+import ins.app.dtos.PhotoPreviewDto;
 import ins.app.dtos.PhotoUploadRequest;
 import ins.app.mappers.PhotoMapper;
 import ins.bl.repositories.PhotoRepository;
@@ -42,19 +39,21 @@ public class PhotoService {
         return PhotoDto.to(foundPhoto);
     }
 
-    public PhotoPageResponse getPhotoPage(PhotoPageRequest photoPageRequest, int pageNumber) {
+    public PhotoPageResponse findPhotoPage(PhotoPageRequest photoPageRequest) {
         PhotoPageResponse result = new PhotoPageResponse();
 
-        Pageable pageable = PageRequest.of(pageNumber,
+        Pageable pageable = PageRequest.of(
+                photoPageRequest.getPageNumber(),
                 photoPageRequest.getPageSize(),
                 Sort.by(Photo_.UPLOAD_TIMESTAMP).descending());
 
-        Specification<Photo> fullSpecification = createSpecificationFromRequest(photoPageRequest);
+        Specification<Photo> fullSpecification = PhotoSpecifications.createFullSpecification(
+                PhotoMapper.toPhotoSearch(photoPageRequest));
 
         result.setPhotoCount(photoRepository.count(fullSpecification));
         result.setPhotoPreviews(photoRepository.findAllPreviews(fullSpecification, pageable)
                 .stream()
-                .map(PhotoPreviewResponse::to)
+                .map(PhotoPreviewDto::to)
                 .toList());
 
         return result;
@@ -64,53 +63,5 @@ public class PhotoService {
         Photo entity = photoMapper.toPhoto(photoUploadRequest);
         Photo savedPhoto = photoRepository.saveAndFlush(entity);
         return PhotoDto.to(savedPhoto);
-    }
-
-    private static LocalDateTime parseDateTime(String inputDate, boolean endOfDay) {
-        if (inputDate == null || inputDate.isEmpty()) {
-            return null;
-        }
-        final String TIME_APPEND_DAY_START = "T00:00:00";
-        final String TIME_APPEND_DAY_END = "T23:59:59";
-
-        if (endOfDay) {
-            inputDate += TIME_APPEND_DAY_END;
-        } else {
-            inputDate += TIME_APPEND_DAY_START;
-        }
-        return LocalDateTime.parse(inputDate);
-    }
-
-    private static Specification<Photo> createSpecificationFromRequest(PhotoPageRequest photoPageRequest) {
-        Specification<Photo> specification = Specification.where(null);
-
-        if (photoPageRequest.getId() != 0) {
-            specification = specification
-                    .and(PhotoSpecifications.matchesId(photoPageRequest.getId()));
-        }
-        if (photoPageRequest.getName() != null) {
-            specification = specification
-                    .and(PhotoSpecifications.matchesName(photoPageRequest.getName()));
-        }
-        if (photoPageRequest.getDescription() != null) {
-            specification = specification
-                    .and(PhotoSpecifications.matchesDescription(photoPageRequest.getDescription()));
-        }
-        if (photoPageRequest.getUploadDateTimeStart() != null) {
-            specification = specification
-                    .and(PhotoSpecifications.uploadedAfter(
-                            parseDateTime(photoPageRequest.getUploadDateTimeStart(), false)));
-        }
-        if (photoPageRequest.getUploadDateTimeEnd() != null) {
-            specification = specification
-                    .and(PhotoSpecifications.uploadedBefore(
-                            parseDateTime(photoPageRequest.getUploadDateTimeEnd(), true)));
-        }
-        if (photoPageRequest.getTags() != null) {
-            specification = specification
-                    .and(PhotoSpecifications.containsTags(
-                            Arrays.stream(photoPageRequest.getTags()).toList()));
-        }
-        return specification;
     }
 }
