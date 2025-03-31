@@ -18,8 +18,8 @@ public class TimeUtility {
     public static LocalDateTime parseDateTime(LocalDate inputDate, boolean endOfDay) {
         if (endOfDay) {
             return inputDate.atStartOfDay().plusDays(1).minusNanos(1);
-        } else {
-            return inputDate.atStartOfDay();
         }
+
+        return inputDate.atStartOfDay();
     }
 }

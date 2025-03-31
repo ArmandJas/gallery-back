@@ -18,18 +18,22 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 
 public class PhotoSpecifications {
-    private static String makePattern(String input) {
+    private static String makeLikePattern(String input) {
         return '%' + input + '%';
+    }
+
+    private static boolean isNotNullOrEmpty(String input) {
+        return input != null && !input.isEmpty();
     }
 
     public static Specification<Photo> matchesName(String input) {
         return (root, query, builder) ->
-                builder.like(root.get(Photo_.name), makePattern(input));
+                builder.like(root.get(Photo_.name), makeLikePattern(input));
     }
 
     public static Specification<Photo> matchesDescription(String input) {
         return (root, query, builder) ->
-                builder.like(root.get(Photo_.description), makePattern(input));
+                builder.like(root.get(Photo_.description), makeLikePattern(input));
     }
 
     public static Specification<Photo> matchesId(long id) {
@@ -67,30 +71,28 @@ public class PhotoSpecifications {
             specification = specification
                     .and(matchesId(photoSearch.getId()));
         }
-        if (photoSearch.getName() != null) {
+        if (isNotNullOrEmpty(photoSearch.getName())) {
             specification = specification
                     .and(matchesName(photoSearch.getName()));
         }
-        if (photoSearch.getDescription() != null) {
+        if (isNotNullOrEmpty(photoSearch.getDescription())) {
             specification = specification
                     .and(matchesDescription(photoSearch.getDescription()));
         }
         if (photoSearch.getUploadDateStart() != null) {
+            LocalDateTime startDateTime = TimeUtility.parseDateTime(photoSearch.getUploadDateStart(), false);
             specification = specification
-                    .and(uploadedAfter(
-                            TimeUtility.parseDateTime(
-                                    photoSearch.getUploadDateStart(), false)));
+                    .and(uploadedAfter(startDateTime));
         }
         if (photoSearch.getUploadDateEnd() != null) {
+            LocalDateTime endDateTime = TimeUtility.parseDateTime(photoSearch.getUploadDateEnd(), true);
             specification = specification
-                    .and(uploadedBefore(
-                            TimeUtility.parseDateTime(
-                                    photoSearch.getUploadDateEnd(), true)));
+                    .and(uploadedBefore(endDateTime));
         }
-        if (photoSearch.getTags() != null) {
+        if (photoSearch.getTags() != null && photoSearch.getTags().length != 0) {
+            List<String> tagList = Arrays.stream(photoSearch.getTags()).toList();
             specification = specification
-                    .and(containsTags(
-                            Arrays.stream(photoSearch.getTags()).toList()));
+                    .and(containsTags(tagList));
         }
         return specification;
     }

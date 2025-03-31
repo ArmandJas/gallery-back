@@ -43,7 +43,7 @@ public class CustomPhotoRepositoryImpl implements CustomPhotoRepository {
 
         Path<Long> idPath = root.get(Photo_.id);
         Path<String> namePath = root.get(Photo_.name);
-        Path<byte[]> imagePath = root.get(Photo_.image);
+        Path<byte[]> imagePath = root.get(Photo_.thumbnailImage);
 
         query.multiselect(idPath, namePath, imagePath)
                 .orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));

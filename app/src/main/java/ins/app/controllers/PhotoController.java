@@ -30,12 +30,12 @@ public class PhotoController {
     }
 
     @PostMapping("/search")
-    public PhotoPageResponse findPhotoPage(@RequestBody PhotoPageRequest photoPageRequest) {
-        return photoService.findPhotoPage(photoPageRequest);
+    public PhotoPageResponse search(@RequestBody PhotoPageRequest photoPageRequest) {
+        return photoService.search(photoPageRequest);
     }
 
     @PostMapping(value = "/post")
-    public PhotoDto addPhoto(@ModelAttribute @Validated PhotoUploadRequest photo) {
-        return photoService.savePhoto(photo);
+    public PhotoDto saveNew(@ModelAttribute @Validated PhotoUploadRequest photo) {
+        return photoService.saveNew(photo);
     }
 }

@@ -39,16 +39,16 @@ public class PhotoService {
         return PhotoDto.to(foundPhoto);
     }
 
-    public PhotoPageResponse findPhotoPage(PhotoPageRequest photoPageRequest) {
+    public PhotoPageResponse search(PhotoPageRequest photoPageRequest) {
         PhotoPageResponse result = new PhotoPageResponse();
 
         Pageable pageable = PageRequest.of(
                 photoPageRequest.getPageNumber(),
                 photoPageRequest.getPageSize(),
-                Sort.by(Photo_.UPLOAD_TIMESTAMP).descending());
+                Sort.by(Photo_.uploadTimestamp.getName()).descending());
 
         Specification<Photo> fullSpecification = PhotoSpecifications.createFullSpecification(
-                PhotoMapper.toPhotoSearch(photoPageRequest));
+                photoPageRequest.toPhotoSearch());
 
         result.setPhotoCount(photoRepository.count(fullSpecification));
         result.setPhotoPreviews(photoRepository.findAllPreviews(fullSpecification, pageable)
@@ -59,7 +59,7 @@ public class PhotoService {
         return result;
     }
 
-    public PhotoDto savePhoto(PhotoUploadRequest photoUploadRequest) {
+    public PhotoDto saveNew(PhotoUploadRequest photoUploadRequest) {
         Photo entity = photoMapper.toPhoto(photoUploadRequest);
         Photo savedPhoto = photoRepository.saveAndFlush(entity);
         return PhotoDto.to(savedPhoto);

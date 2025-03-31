@@ -9,15 +9,12 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import ins.app.dtos.PhotoPageRequest;
 import ins.app.dtos.PhotoUploadRequest;
 import ins.app.services.TagService;
 import ins.bl.utilities.ThumbnailCreator;
 import ins.bl.utilities.TimeUtility;
 import ins.model.entities.Photo;
 import ins.model.entities.Tag;
-import ins.model.models.PhotoSearch;
-
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -59,16 +56,5 @@ public class PhotoMapper {
         photo.setTags(tags);
 
         return photo;
-    }
-
-    public static PhotoSearch toPhotoSearch(PhotoPageRequest photoPageRequest) {
-        return PhotoSearch.builder()
-                .id(photoPageRequest.getId())
-                .name(photoPageRequest.getName())
-                .description(photoPageRequest.getDescription())
-                .uploadDateStart(photoPageRequest.getUploadDateStart())
-                .uploadDateEnd(photoPageRequest.getUploadDateEnd())
-                .tags(photoPageRequest.getTags())
-                .build();
     }
 }
