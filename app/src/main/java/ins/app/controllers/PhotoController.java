@@ -37,15 +37,14 @@ public class PhotoController {
         photoService.deletePhoto(id);
     }
 
-    @PostMapping("/page/{pageNumber}")
-    public PhotoPageResponse getPhotoPage(@RequestBody PhotoPageRequest photoPageRequest,
-            @PathVariable int pageNumber) {
-        return photoService.getPhotoPage(photoPageRequest, pageNumber);
+    @PostMapping("/search")
+    public PhotoPageResponse search(@RequestBody PhotoPageRequest photoPageRequest) {
+        return photoService.search(photoPageRequest);
     }
 
     @PostMapping(value = "/post")
-    public PhotoDto addPhoto(@ModelAttribute @Validated PhotoUploadRequest photo) {
-        return photoService.savePhoto(photo);
+    public PhotoDto saveNew(@ModelAttribute @Validated PhotoUploadRequest photo) {
+        return photoService.saveNew(photo);
     }
 
     @PutMapping(value = "/edit")
