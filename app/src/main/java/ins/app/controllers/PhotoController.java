@@ -5,10 +5,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ins.app.dtos.PhotoDto;
+import ins.app.dtos.PhotoPageRequest;
+import ins.app.dtos.PhotoPageResponse;
 import ins.app.dtos.PhotoUploadRequest;
 import ins.app.services.PhotoService;
 
@@ -26,8 +29,13 @@ public class PhotoController {
         return photoService.getPhoto(id);
     }
 
+    @PostMapping("/search")
+    public PhotoPageResponse search(@RequestBody PhotoPageRequest photoPageRequest) {
+        return photoService.search(photoPageRequest);
+    }
+
     @PostMapping(value = "/post")
-    public PhotoDto addPhoto(@ModelAttribute @Validated PhotoUploadRequest photo) {
-        return photoService.savePhoto(photo);
+    public PhotoDto saveNew(@ModelAttribute @Validated PhotoUploadRequest photo) {
+        return photoService.saveNew(photo);
     }
 }

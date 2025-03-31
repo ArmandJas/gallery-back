@@ -1,5 +1,8 @@
 package ins.app.services;
 
+import java.util.List;
+import java.util.Set;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 public class TagService {
     private final TagRepository tagRepository;
 
-    public Tag getTagByName(String name) {
-        return tagRepository.findTagByName(name);
+    public Set<Tag> getTagsByNameList(List<String> tagNames) {
+        return tagRepository.findAllByNameIn(tagNames);
     }
 }
