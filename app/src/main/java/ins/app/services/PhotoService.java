@@ -16,6 +16,7 @@ import ins.app.dtos.PhotoDto;
 import ins.app.dtos.PhotoPageRequest;
 import ins.app.dtos.PhotoPageResponse;
 import ins.app.dtos.PhotoPreviewResponse;
+import ins.app.dtos.PhotoUpdateRequest;
 import ins.app.dtos.PhotoUploadRequest;
 import ins.app.mappers.PhotoMapper;
 import ins.bl.repositories.PhotoRepository;
@@ -64,6 +65,16 @@ public class PhotoService {
         Photo entity = photoMapper.toPhoto(photoUploadRequest);
         Photo savedPhoto = photoRepository.saveAndFlush(entity);
         return PhotoDto.to(savedPhoto);
+    }
+
+    public PhotoDto updatePhoto(PhotoUpdateRequest photoUpdateRequest) {
+        Photo entity = photoMapper.toPhoto(photoUpdateRequest);
+        Photo savedPhoto = photoRepository.saveAndFlush(entity);
+        return PhotoDto.to(savedPhoto);
+    }
+
+    public void deletePhoto(long id) {
+        photoRepository.deleteById(id);
     }
 
     private static LocalDateTime parseDateTime(String inputDate, boolean endOfDay) {

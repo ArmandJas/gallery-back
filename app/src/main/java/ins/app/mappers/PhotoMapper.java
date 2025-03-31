@@ -7,12 +7,16 @@ import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
+import ins.app.dtos.PhotoUpdateRequest;
 import ins.app.dtos.PhotoUploadRequest;
 import ins.app.services.TagService;
 import ins.app.utilities.ThumbnailCreator;
 import ins.bl.utilities.TimeUtility;
 import ins.model.entities.Photo;
 import ins.model.entities.Tag;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -46,7 +50,23 @@ public class PhotoMapper {
 
         photo.setUploadTimestamp(TimeUtility.createTimestamp());
 
-        List<String> tagList = photoUploadRequest.getTags();
+        photo.setTags(createTagSet(photoUploadRequest.getTags()));
+        return photo;
+    }
+
+    public Photo toPhoto(PhotoUpdateRequest photoUpdateRequest) {
+        Photo photo = new Photo();
+        photo.setName(photoUpdateRequest.getName().trim());
+
+        if (photoUpdateRequest.getDescription() != null) {
+            photo.setDescription(photoUpdateRequest.getDescription().trim());
+        }
+
+        photo.setTags(createTagSet(photoUpdateRequest.getTags()));
+        return photo;
+    }
+
+    private Set<Tag> createTagSet(List<String> tagList) {
         Set<String> tagsToCreate = new HashSet<>(tagList);
         Set<Tag> existingTags = tagService.getTagsByNameList(tagList);
 
@@ -57,8 +77,6 @@ public class PhotoMapper {
         });
 
         tagsToCreate.forEach(tag -> existingTags.add(new Tag(tag)));
-
-        photo.setTags(existingTags);
-        return photo;
+        return existingTags;
     }
 }
