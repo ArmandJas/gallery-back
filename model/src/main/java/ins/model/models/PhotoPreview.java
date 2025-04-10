@@ -8,5 +8,4 @@ import lombok.Data;
 public class PhotoPreview {
     private long id;
     private String name;
-    private byte[] thumbnailImage;
 }
