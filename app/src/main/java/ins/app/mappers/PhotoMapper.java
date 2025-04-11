@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import ins.app.dtos.PhotoUploadRequest;
+import ins.app.dtos.PhotoSaveRequest;
 import ins.app.services.TagService;
 import ins.bl.utilities.ThumbnailCreator;
 import ins.bl.utilities.TimeUtility;
@@ -22,10 +22,10 @@ import lombok.RequiredArgsConstructor;
 public class PhotoMapper {
     private final TagService tagService;
 
-    public Photo toPhoto(PhotoUploadRequest photoUploadRequest) {
+    public Photo toPhoto(PhotoSaveRequest photoSaveRequest) {
         byte[] imageData;
         try {
-            imageData = photoUploadRequest.getImage().getBytes();
+            imageData = photoSaveRequest.getImage().getBytes();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -35,14 +35,31 @@ public class PhotoMapper {
         Photo photo = new Photo();
         photo.setImage(imageData);
         photo.setThumbnailImage(thumbnailData);
-        photo.setName(photoUploadRequest.getName().trim());
+        photo.setName(photoSaveRequest.getName().trim());
         photo.setUploadTimestamp(TimeUtility.createTimestamp());
 
-        if (photoUploadRequest.getDescription() != null) {
-            photo.setDescription(photoUploadRequest.getDescription().trim());
+        if (photoSaveRequest.getDescription() != null) {
+            photo.setDescription(photoSaveRequest.getDescription().trim());
         }
 
-        List<String> tagList = photoUploadRequest.getTags();
+        List<String> tagList = photoSaveRequest.getTags();
+        photo.setTags(createInstantiatedTagSet(tagList));
+        return photo;
+    }
+
+    public Photo updatePhotoFields(Photo photo, PhotoSaveRequest photoSaveRequest) {
+        photo.setName(photoSaveRequest.getName().trim());
+
+        if (photoSaveRequest.getDescription() != null) {
+            photo.setDescription(photoSaveRequest.getDescription().trim());
+        }
+
+        List<String> tagList = photoSaveRequest.getTags();
+        photo.setTags(createInstantiatedTagSet(tagList));
+        return photo;
+    }
+
+    private Set<Tag> createInstantiatedTagSet(List<String> tagList) {
         Map<String, Tag> tagMap = tagService.getTagsByNameList(tagList)
                 .stream()
                 .collect(Collectors.toMap(
@@ -50,11 +67,8 @@ public class PhotoMapper {
                         Function.identity()
                 ));
 
-        Set<Tag> tags = tagList.stream()
+        return tagList.stream()
                 .map(tagName -> tagMap.computeIfAbsent(tagName, Tag::new))
                 .collect(Collectors.toSet());
-        photo.setTags(tags);
-
-        return photo;
     }
 }

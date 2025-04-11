@@ -7,5 +7,5 @@ import lombok.Data;
 @Data
 public class PhotoPageResponse {
     private List<PhotoPreviewDto> photoPreviews;
-    private long photoCount;
+    private long photoTotalCount;
 }
